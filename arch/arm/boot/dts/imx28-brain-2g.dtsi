@@ -95,6 +95,22 @@
 				status = "okay";
 			};
 
+			ssp2: spi@80014000 {
+				compatible = "fsl,imx28-spi";
+				pinctrl-names = "default";
+				pinctrl-0 = <&slcd_pins>;
+				clock-frequency = <16000000>;
+				status = "okay";
+
+				slcd@0 {
+					reg = <0>;
+					compatible = "brain,st7586";
+					spi-max-frequency = <16000000>;
+					reset-gpios = <&gpio2 18 GPIO_ACTIVE_HIGH>;
+					rotation = <180>;
+				};
+			};
+
 			pinctrl@80018000 {
 				pinctrl-names = "default";
 				pinctrl-0 = <&hog_pins_3v3_pullup &hog_pins_3v3_nopull &hog_pins_1v8_nopull>;
@@ -140,6 +156,7 @@
 					fsl,pinmux-ids = <
 						MX28_PAD_AUART1_RX__PWM_0
 						MX28_PAD_AUART1_TX__PWM_1
+						MX28_PAD_PWM2__PWM_2
 						MX28_PAD_PWM4__PWM_4
 						MX28_PAD_SAIF1_SDATA0__GPIO_3_26
 					>;
@@ -175,6 +192,19 @@
 					>;
 					fsl,drive-strength = <MXS_DRIVE_4mA>;
 					fsl,voltage = <MXS_VOLTAGE_LOW>;
+					fsl,pull-up = <MXS_PULL_DISABLE>;
+				};
+
+				slcd_pins: spi2@0 {
+					reg = <0>;
+					fsl,pinmux-ids = <
+						MX28_PAD_SSP2_SCK__SSP2_SCK
+						MX28_PAD_SSP2_MOSI__SSP2_CMD
+						MX28_PAD_SSP2_MISO__GPIO_2_18
+						MX28_PAD_SSP2_SS0__SSP2_D3
+					>;
+					fsl,drive-strength = <MXS_DRIVE_4mA>;
+					fsl,voltage = <MXS_VOLTAGE_HIGH>;
 					fsl,pull-up = <MXS_PULL_DISABLE>;
 				};
 			};
@@ -284,11 +314,18 @@
 		audio-codec = <&sgtl5000>;
 	};
 
-	backlight_display: backlight {
+	backlight_display: backlight@0 {
 		compatible = "pwm-backlight";
 		pwms = <&pwm 0 50000>, <&pwm 1 50000>;
 		brightness-levels = <0 4 8 16 32 64 128 255>;
 		default-brightness-level = <4>;  //Set 4 for identification on probing
+	};
+
+	slcd_backlight: backlight@1 {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 2 50000>;
+		brightness-levels = <0 63 127 255>;
+		default-brightness-level = <3>;
 	};
 
 	buzzer_cold: buzzer_cold {
