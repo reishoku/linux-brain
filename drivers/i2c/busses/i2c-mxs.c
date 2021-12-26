@@ -840,9 +840,12 @@ static int mxs_i2c_probe(struct platform_device *pdev)
 	}
 
 	/* Setup the DMA */
-	i2c->dmach = dma_request_slave_channel(dev, "rx-tx");
-	if (!i2c->dmach) {
-		dev_err(dev, "Failed to request dma\n");
+	i2c->dmach = dma_request_chan(dev, "rx-tx");
+	if (IS_ERR(i2c->dmach)) {
+		if (i2c->dmach == -EPROBE_DEFER)	
+			return -EPROBE_DEFER;
+
+		dev_err(dev, "Failed to request dma: %d\n", i2c->dmach);
 		return -ENODEV;
 	}
 
