@@ -4,6 +4,7 @@
 
 /dts-v1/;
 #include "imx28.dtsi"
+#include <dt-bindings/input/input.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
@@ -391,6 +392,19 @@
 	keyboard_gpio: keyboard_gpio {
 		status = "disabled";
 		compatible = "sharp,brain-kbd-gpio";
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		button@16 {
+			wakeup-source;
+			linux,code = <KEY_POWER>;
+			label = "Power";
+			gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+		};
 	};
 
 	buzzer_cold: buzzer_cold {
