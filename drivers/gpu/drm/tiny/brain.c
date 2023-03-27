@@ -56,6 +56,8 @@ struct brain_drm_private {
 	struct drm_simple_display_pipe pipe;
 	struct drm_connector connector;
 	struct drm_panel *panel;
+	struct gpio_desc **en_gpios;
+	int en_gpios_count;
 };
 
 static const struct {
@@ -506,7 +508,6 @@ static int brain_probe(struct platform_device *pdev)
 	struct drm_device *drm;
 	struct brain_drm_private *ili;
 	struct resource *res;
-	struct gpio_desc *en;
 	u32 width, height;
 	int i, ret;
 
@@ -554,9 +555,17 @@ static int brain_probe(struct platform_device *pdev)
 	drm_mode_config_init(drm);
 	drm->mode_config.funcs = &brain_mode_config_funcs;
 
-	for (i = 0; i < gpiod_count(&pdev->dev, "sharp,en"); i++) {
-		en = devm_gpiod_get_index(&pdev->dev, "sharp,en", i, GPIOD_OUT_HIGH);
-		if (IS_ERR(en))
+	ili->en_gpios_count = gpiod_count(&pdev->dev, "sharp,en");
+	dev_err(&pdev->dev, "FOUND %d GPIOS\n", ili->en_gpios_count);
+	ili->en_gpios = devm_kzalloc(&pdev->dev, sizeof(struct gpio_desc *) * ili->en_gpios_count, GFP_KERNEL);
+	if (!ili->en_gpios) {
+		drm_dev_put(drm);
+		return -ENOMEM;
+	}
+
+	for (i = 0; i < ili->en_gpios_count; i++) {
+		ili->en_gpios[i] = devm_gpiod_get_index(&pdev->dev, "sharp,en", i, GPIOD_OUT_HIGH);
+		if (IS_ERR(ili->en_gpios[i]))
 			dev_err(&pdev->dev, "failed to get gpio %d\n", i);
 			continue;
 		ret = gpiod_direction_output(en, 1);
