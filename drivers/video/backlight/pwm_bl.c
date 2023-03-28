@@ -80,8 +80,12 @@ static void pwm_backlight_power_off(struct pwm_bl_data *pb)
 	if (pb->pwm_off_delay)
 		msleep(pb->pwm_off_delay);
 
-	state.enabled = false;
 	state.duty_cycle = 0;
+	pwm_apply_state(pb->pwm, &state);
+
+	udelay(100);
+
+	state.enabled = false;
 	pwm_apply_state(pb->pwm, &state);
 
 	regulator_disable(pb->power_supply);
