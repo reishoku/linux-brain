@@ -93,7 +93,7 @@
 				pinctrl-0 = <&mmc1_4bit_pins_a
 					&mmc1_cd_cfg &mmc1_sck_cfg>;
 				bus-width = <4>;
-				status = "okay";
+				status = "disabled";
 			};
 
 			ssp2: spi@80014000 {
@@ -115,7 +115,7 @@
 
 			pinctrl@80018000 {
 				pinctrl-names = "default";
-				pinctrl-0 = <&hog_pins_3v3_pullup &hog_pins_3v3_nopull &hog_pins_1v8_nopull>;
+				pinctrl-0 = <&hog_pins_3v3_pullup &hog_pins_3v3_nopull &hog_pins_1v8_nopull &hog_sd_gpio>;
 
 				hog_pins_3v3_pullup: hog@0 {
 					reg = <0>;
@@ -150,6 +150,22 @@
 					>;
 					fsl,drive-strength = <MXS_DRIVE_4mA>;
 					fsl,voltage = <MXS_VOLTAGE_LOW>;
+					fsl,pull-up = <MXS_PULL_DISABLE>;
+				};
+
+				hog_sd_gpio: hog@3 {
+					reg = <3>;
+					fsl,pinmux-ids = <
+						MX28_PAD_GPMI_D00__GPIO_0_0
+						MX28_PAD_GPMI_D01__GPIO_0_1
+						MX28_PAD_GPMI_D02__GPIO_0_2
+						MX28_PAD_GPMI_D03__GPIO_0_3
+						MX28_PAD_GPMI_RDY0__GPIO_0_20
+						MX28_PAD_GPMI_RDY1__GPIO_0_21
+						MX28_PAD_GPMI_WRN__GPIO_0_25
+					>;
+					fsl,drive-strength = <MXS_DRIVE_4mA>;
+					fsl,voltage = <MXS_VOLTAGE_HIGH>;
 					fsl,pull-up = <MXS_PULL_DISABLE>;
 				};
 
